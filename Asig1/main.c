@@ -2,20 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-char* reemplazar_espacios(char *string)
-{
-    printf("Culo");
-    int i;
-    for (i=0;i<=strlen(string)-2;i++)
-    {
-        if (string[i] == ' ')
-        {
-            string[i] = '-';
-        }
-    }
-    return string;
-}
-
 void insertar()
 {
     /* Gettings vars */
@@ -24,7 +10,7 @@ void insertar()
     char descripcion[DESCRIPCION_LEN];
     float costo, precio;
     int cantidad;
-    int codigo;
+    int codigo, i;
 
     /* Getting runtine */
 
@@ -42,7 +28,6 @@ void insertar()
     /* Data processing */
 
     // description's depuration
-    int i;
     for (i=0;i<=strlen(descripcion)-2;i++)
     {
         if (descripcion[i] == ' ')
@@ -52,15 +37,58 @@ void insertar()
     }
     strtok(descripcion, "\n");
 
-    codigo = 13; // Place holder
-
-    /* File saving:
+    /* File saving */
+    /* cant_registros codigo_registos
+     * n              0 ... 9999
+     *
      * codigo - descripcion - costo - precio - cantidad
      * */
-    FILE *archivo = fopen("data.txt","a");
-    fprintf(archivo,"%i %s %3.3f %3.3f %i\n",codigo,descripcion,costo,precio,cantidad);
+
+    int n = 0, index_codigo = 0;
+    char linea[100];
+
+    /* Copiar data.txt -> aux_data.txt */
+
+    FILE* aux_archivo = fopen("aux_data.txt","w");
+    FILE* archivo = fopen("data.txt","r+");
+
+    fscanf(archivo,"%i %i\n",&n,&index_codigo);
+
+    for(i = 0; i < n; i++)
+    {
+        fgets(linea,90,archivo);
+        printf("%s",linea);
+        fprintf(aux_archivo,"%s",linea);
+        strcpy(linea,"");
+    }
+
     fclose(archivo);
+    fclose(aux_archivo);
+
+    /* Abrir data.txt en Write y aplicar el control de indice y la insercion */
+
+    archivo = fopen("data.txt","w"); // Reset
+    aux_archivo = fopen("aux_data.txt","r+");
+
+    // Indices de control
+    n++;
+    index_codigo++;
+    fprintf(archivo, "%i %i\n", n,index_codigo);
     
+    // Copiar todo los registros
+    for(i = 0; i < n-1; i++)
+    {
+        fgets(linea,100,aux_archivo);
+        fputs(linea,archivo);
+        strcpy(linea,"");
+    }
+
+    // Insertando nuevo resgistro
+    codigo = index_codigo;
+    fprintf(archivo,"%i %s %3.3f %3.3f %i\n",codigo,descripcion,costo,precio,cantidad);
+
+    fclose(archivo);
+    fclose(aux_archivo);
 
 }
 
@@ -81,7 +109,7 @@ void actualizar()
 
 int main()
 {
-    char program_version[] = "v0.1";
+    char program_version[] = "v0.2";
     char option = 'r';
 
     
@@ -111,5 +139,3 @@ int main()
     }
 
 }
-
-
