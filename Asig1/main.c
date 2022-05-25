@@ -2,11 +2,21 @@
 #include <stdlib.h>
 #include <string.h>
 
+// tolower
+/*
+ *  size_t len = strlen(str);
+    char *lower = calloc(len+1, sizeof(char));
+
+    for (size_t i = 0; i < len; ++i) {
+        lower[i] = tolower((unsigned char)str[i]);
+    }
+ *
+ * */
+
 void insertar()
 {
-    /* Gettings vars */
 
-    int DESCRIPCION_LEN = 30;
+    int DESCRIPCION_LEN = 30; // ?
     char descripcion[DESCRIPCION_LEN];
     float costo, precio;
     int cantidad;
@@ -28,6 +38,7 @@ void insertar()
     /* Data processing */
 
     // description's depuration
+    //| Setear descripcion todo en mayusculas
     for (i=0;i<=strlen(descripcion)-2;i++)
     {
         if (descripcion[i] == ' ')
@@ -56,6 +67,7 @@ void insertar()
 
     for(i = 0; i < n; i++)
     {
+        //| Si linea[descripcion] == descripcion No Insertes
         fgets(linea,90,archivo);
         printf("%s",linea);
         fprintf(aux_archivo,"%s",linea);
@@ -99,7 +111,31 @@ void eliminar()
 
 void consultar()
 {
-    printf("Proceso de consulta...\n");
+    char descripcion_user[30], linea[100];
+    int n, enc = 0, i;
+
+    /* Obtencion de buscando */
+    printf("Consulta de producto:\n");
+    printf("Inserte la Descripcion del producto:\n");
+    fgets(descripcion_user, sizeof(descripcion_user), stdin);
+
+    /* Manipulacion */
+
+    // Obteniendo indices de control
+    FILE* archivo = fopen("data.txt","r");
+    fscanf(archivo,"%i\n",&n);
+    
+    // Recorrer los registros
+    i = 0;
+    fseek(archivo,1, SEEK_CUR);
+    while(i < n && !enc)
+    {
+        strcpy(linea,"");
+        fgets(linea,90,archivo);
+        printf("%s",linea);
+        i++;
+    }
+
 }
 
 void actualizar()
