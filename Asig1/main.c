@@ -1,17 +1,75 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
-// tolower
-/*
- *  size_t len = strlen(str);
-    char *lower = calloc(len+1, sizeof(char));
+void arreglar_formato(char *cadena)
+{
+    int length = strlen(cadena), i;
 
-    for (size_t i = 0; i < len; ++i) {
-        lower[i] = tolower((unsigned char)str[i]);
+    // Reemplazar espacios
+    for (i=0;i<=length-2;i++)
+        if (cadena[i] == ' ')
+            cadena[i] = '-';
+    strtok(cadena, "\n");
+
+    // Reemplazar espacios
+    for (i = 0; i < length; i++)
+        cadena[i] = tolower(cadena[i]);
+}
+
+int es_descripcion(char* cadena, char* linea)
+{
+    int enc = 0, i;
+    
+    // Localizacion del primer espacio en formato de registro
+    i = 0;
+    while(linea[i] != ' ')
+        i++;
+    i++;
+
+    // Comparacion
+    int j = 0;
+    while(linea[i] != ' ' && !enc)
+    {
+        if(linea[i] != cadena[j])
+            enc = 1;
+        i++;
+        j++;
     }
- *
- * */
+    return !enc;
+}
+
+// Retorna el indice donde encontro un espacio.
+// Imprime letra a letra hasta encontrar un espacio.
+int print_dato(char* linea, int i)
+{
+    int length = strlen(linea);
+    while(linea[i] != ' ' && i < length)
+    {
+        printf("%c",linea[i]);
+        i++;
+    }
+
+    i++;
+    return i;
+}
+
+void print_regitro(char* linea)
+{
+    // Codigo
+    int i = 0;
+    printf("\nCodigo de Identidicacion: ");
+    i = print_dato(linea,i);
+    printf(" ~\nDescripcion del producto: ");
+    i = print_dato(linea,i);
+    printf(" ~\nCosto: ");
+    i = print_dato(linea,i);
+    printf(" ~\nPrecio: ");
+    i = print_dato(linea,i);
+    printf(" ~\nCantidad de unidades: ");
+    i = print_dato(linea,i);
+}
 
 void insertar()
 {
@@ -37,16 +95,7 @@ void insertar()
 
     /* Data processing */
 
-    // description's depuration
-    //| Setear descripcion todo en mayusculas
-    for (i=0;i<=strlen(descripcion)-2;i++)
-    {
-        if (descripcion[i] == ' ')
-        {
-            descripcion[i] = '-';
-        }
-    }
-    strtok(descripcion, "\n");
+    arreglar_formato(descripcion);
 
     /* File saving */
     /* cant_registros codigo_registos
@@ -118,8 +167,11 @@ void consultar()
     printf("Consulta de producto:\n");
     printf("Inserte la Descripcion del producto:\n");
     fgets(descripcion_user, sizeof(descripcion_user), stdin);
+    printf("Buscando dicho producto...\n");
 
     /* Manipulacion */
+
+    arreglar_formato(descripcion_user);
 
     // Obteniendo indices de control
     FILE* archivo = fopen("data.txt","r");
@@ -127,15 +179,25 @@ void consultar()
     
     // Recorrer los registros
     i = 0;
-    fseek(archivo,1, SEEK_CUR);
+    fseek(archivo,2, SEEK_CUR); // Mover malandristicamente
     while(i < n && !enc)
     {
-        strcpy(linea,"");
         fgets(linea,90,archivo);
-        printf("%s",linea);
+        if(es_descripcion(descripcion_user,linea))
+            enc = 1;
         i++;
     }
 
+    // Salida
+    if(enc)
+    {
+        printf("Registro encontrado:\n");
+        print_regitro(linea);
+    }
+    else
+    {
+        printf("\nRegistro No encontrado:\n");
+    }
 }
 
 void actualizar()
@@ -145,20 +207,19 @@ void actualizar()
 
 int main()
 {
-    char program_version[] = "v0.2";
+    char program_version[] = "v0.3";
     char option = 'r';
 
     
     while(option != 'q')
     { 
-        printf(". : Gestion de productos %s : .\n",program_version);
+        printf("\n. : Gestion de productos %s : .\n",program_version);
         printf("Operaciones para resgistros:\n");
         printf("i. para Insertar.\n");
         printf("c. para Consultar.\n");
         printf("a. para Actualizar.\n");
         printf("e. para Eliminar.\n");
         printf("q. Salir del programa de gestion.\n");
-//        printf("%s",reemplazar_espacios("Puta la wea"));
         printf(" > ");
         
         option = getchar();

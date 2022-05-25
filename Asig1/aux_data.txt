@@ -1,3 +1,4 @@
-1 Puta 2.000 3.000 4
-2 Error 2.000 3.000 2
-3 Poronga 2.000 3.000 2
+1 torta-de-chocolate 3.000 2.000 1
+2 banana-split 3.000 4.000 5
+3 cafe-de-cereza 3.000 2.000 1
+4 pene 3.000 4.000 23
