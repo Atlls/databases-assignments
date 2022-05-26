@@ -1,4 +1,4 @@
-1 torta-de-chocolate 3.000 2.000 1
-2 banana-split 3.000 4.000 5
-3 cafe-de-cereza 3.000 2.000 1
-4 pene 3.000 4.000 23
+1 no 3.000 4.000 5
+2 cons 3.000 4.000 5
+5 pipo 3.000 4.000 5
+6 machete 5.000 4.000 3

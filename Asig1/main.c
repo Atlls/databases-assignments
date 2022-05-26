@@ -118,7 +118,7 @@ void insertar()
     {
         //| Si linea[descripcion] == descripcion No Insertes
         fgets(linea,90,archivo);
-        printf("%s",linea);
+        //printf("%s",linea);
         fprintf(aux_archivo,"%s",linea);
         strcpy(linea,"");
     }
@@ -155,7 +155,66 @@ void insertar()
 
 void eliminar()
 {
-    printf("Proceso de eliminacion...\n");
+    char descripcion_user[30], linea[100]; 
+    int i, enc = 0, n, index_codigo;
+
+    /* Obtencion de producto */
+    printf("Elimnar un registro:\n");
+    printf("Inserte la Descripcion del producto:\n");
+    fgets(descripcion_user, sizeof(descripcion_user), stdin);
+    printf("Buscando dicho producto...\n");
+    arreglar_formato(descripcion_user);
+
+    // Obteniendo indices de control
+    FILE* aux_archivo = fopen("aux_data.txt","w");
+    FILE* archivo = fopen("data.txt","r");
+    fscanf(archivo,"%i %i\n",&n, &index_codigo);
+    
+    // Recorrer los registros y respaldar
+    i = 0;
+    while(i < n)
+    {
+        fgets(linea,100,archivo);
+        //printf("%s**\n",linea);
+
+        if(es_descripcion(descripcion_user,linea))
+            enc = 1;
+        else
+            fprintf(aux_archivo,"%s",linea);
+        i++;
+    }
+
+    fclose(archivo);
+    fclose(aux_archivo);
+
+    // Salida
+    if(enc)
+    {
+        // Actualizar indices de control y acualizar achivo principal
+        FILE* aux_archivo = fopen("aux_data.txt","r");
+        FILE* archivo = fopen("data.txt","w");
+
+        n--;
+        fprintf(archivo, "%i %i\n", n,index_codigo);
+
+        // Copiar todo los registros
+        for(i = 0; i < n; i++)
+        {
+            fgets(linea,100,aux_archivo);
+            //printf("%s*\n",linea);
+            fputs(linea,archivo);
+            strcpy(linea,"");
+        }
+
+        fclose(archivo);
+        fclose(aux_archivo);
+
+        printf("El registro \"%s\" ha sido eliminado.", descripcion_user);
+    }
+    else
+    {
+        printf("La Descripcion %s no está registrado.", descripcion_user);
+    }
 }
 
 void consultar()
@@ -188,6 +247,8 @@ void consultar()
         i++;
     }
 
+    fclose(archivo);
+
     // Salida
     if(enc)
     {
@@ -198,6 +259,7 @@ void consultar()
     {
         printf("\nRegistro No encontrado:\n");
     }
+
 }
 
 void actualizar()
@@ -207,7 +269,7 @@ void actualizar()
 
 int main()
 {
-    char program_version[] = "v0.3";
+    char program_version[] = "v0.4";
     char option = 'r';
 
     
