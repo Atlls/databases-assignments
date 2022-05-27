@@ -3,6 +3,32 @@
 #include <string.h>
 #include <ctype.h>
 
+int strspace(char *string)
+{
+    int length = strlen(string), i = 0;
+    while(string[i] != ' ' && i < length)
+        i++;
+    return i == length ? -1 : i;
+}
+
+// !! No tiene limitadores
+char* strslice(char *string, int inicio, int final)
+{
+    char* out[100];
+    int length = strlen(string), i = 0, j = 0;
+    while(i < final && length > final)
+    {
+        if(i > inicio)
+        {
+            printf("%c",string[i]);
+            out[j] += string[i];
+            j++;
+        }
+        i++;
+    }
+    return *out;
+}
+
 void arreglar_formato(char *cadena)
 {
     int length = strlen(cadena), i;
@@ -264,12 +290,92 @@ void consultar()
 
 void actualizar()
 {
-    printf("Proceso de actualizacion...\n");
+    char descripcion_user[30], linea[100]; 
+    float costo, precio;
+    int i, index_enc = 0, n, index_codigo, cantidad;
+
+    /* Obtencion de producto */
+    printf("Actualizar un registro:\n");
+    printf("    Inserte la Descripcion del producto:\n");
+    printf("         > ");
+    fgets(descripcion_user, sizeof(descripcion_user), stdin);
+    printf("    Inserte las cantidades de dicho producto a acualizar.\n");
+    printf("    Inserte -1 para saltar campo:\n");
+    printf("        Costo en Bs:\n");
+    printf("                > ");
+    scanf("%f", &costo);
+    printf("        Precio de Venta en Bs:\n");
+    printf("                > ");
+    scanf("%f", &precio);
+    printf("        Cantidad Nueva:\n");
+    printf("                > ");
+    scanf("%i", &cantidad);
+
+
+    /* Buscar registro a acualizar */
+    FILE* aux_archivo = fopen("aux_data.txt","w");
+    FILE* archivo = fopen("data.txt","r");
+
+    // Indices de control
+    fscanf(archivo,"%i\n",&n);
+
+    i = 0;
+    fseek(archivo,2, SEEK_CUR); // Mover malandristicamente
+    while(i < n)
+    {
+        fgets(linea,100,archivo);
+        fprintf(aux_archivo,"%s",linea);
+
+        if(es_descripcion(descripcion_user,linea))
+            index_enc = i;
+        i++;
+    }
+
+    fclose(archivo);
+    fclose(aux_archivo);
+
+    /* Acualizacion de registro */
+    if(index_enc > 0)
+    {
+        char aux_costo[5];
+        printf("%s",linea);
+        printf("%i ~\n",strspace(linea)); 
+
+        // Copiar todos los registros hasta al anterior al selecionado
+        aux_archivo = fopen("aux_data.txt","r");
+        //archivo = fopen("data.txt","w");
+        
+        fseek(aux_archivo,0, SEEK_CUR); // Mover malandristicamente
+        printf("%i ~~\n",i);
+        while(index_enc > 0)
+        {
+            fgets(linea,100,aux_archivo);
+            printf("%s",linea);
+            index_enc--;
+        }
+        
+        // Proceso de reemplazo de linea
+        int aux;
+        fgets(linea,100,aux_archivo);
+        aux = strspace(linea);
+        costo = costo != -1 ? costo: -2;
+        printf("%f", costo);
+
+
+        // * Obtener indice del primer espacio (antes del nombre).
+        // * Sumar ese indice con la longitud del nombre, obtenemos
+        // el segundo espacio.
+        // * Si los campos son != a -1, reemplazarlos (float/int -> Cadena)
+    }
+    else
+    {
+        printf("qk pelua");
+    }
 }
 
 int main()
 {
-    char program_version[] = "v0.4";
+    char program_version[] = "v0.4.1";
     char option = 'r';
 
     
@@ -282,6 +388,7 @@ int main()
         printf("a. para Actualizar.\n");
         printf("e. para Eliminar.\n");
         printf("q. Salir del programa de gestion.\n");
+        printf("%s~~~\n",strslice("Machetico",2,5));
         printf(" > ");
         
         option = getchar();
