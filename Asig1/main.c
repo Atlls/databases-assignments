@@ -326,7 +326,7 @@ void actualizar()
         
         // Terminar de copiar todo lo de abajo
         i = 0;
-        while(i < n - index_enc)
+        while(i < n - enc)
         {
             fgets(linea,100,aux_archivo);
             fprintf(archivo,"%s",linea);
@@ -350,7 +350,7 @@ int main()
     
     while(option != 'q')
     { 
-        printf("\n. : Gestion de productos %s : .\n",program_version);
+        printf(". : Gestion de productos %s : .\n",program_version);
         printf("Operaciones para resgistros:\n");
         printf("i. para Insertar.\n");
         printf("c. para Consultar.\n");
