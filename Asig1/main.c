@@ -10,6 +10,12 @@
  * codigo - descripcion - costo - precio - cantidad
  * */
 
+void inicializar_tabla()
+{
+    FILE* archivo = fopen("data.txt","w");
+    fprintf(archivo, "0 0\n");
+    fclose(archivo);
+}
 
 void arreglar_formato(char *cadena)
 {
@@ -67,43 +73,41 @@ int print_dato(char* linea, int i)
 void print_regitro(char* linea)
 {
     int i = 0;
-    printf("\nCodigo de Identidicacion: ");
+    printf("\n        Codigo de Identidicacion: ");
     i = print_dato(linea,i);
-    printf(" ~\nDescripcion del producto: ");
+    printf("\n        Descripcion del producto: ");
     i = print_dato(linea,i);
-    printf(" ~\nCosto: ");
+    printf("\n        Costo: ");
     i = print_dato(linea,i);
-    printf(" ~\nPrecio: ");
+    printf("\n        Precio: ");
     i = print_dato(linea,i);
-    printf(" ~\nCantidad de unidades: ");
+    printf("\n        Cantidad de unidades: ");
     i = print_dato(linea,i);
 }
 
 void insertar()
 {
-    char descripcion[30];
+    char descripcion[30], linea[100];
     float costo, precio;
-    int codigo, i, cantidad;
+    int codigo, i, cantidad, n = 0, index_codigo = 0;
 
-    /* Getting runtine */
-
+    /* Obtencion de pregistro */
     printf("Insercion de producto:\n");
-    printf("Creacion de resgistro:\n");
-    printf(" Descripcion del Producto : ");
+    printf("    Creacion de resgistro:\n");
+    printf("    Descripcion del Producto : \n");
+    printf("         > ");
     fgets(descripcion, sizeof(descripcion), stdin);
-    printf(" Costo en Bs : ");
+    printf("        Costo en Bs : \n");
+    printf("         > ");
     scanf("%f", &costo);
-    printf(" Precio de Venta en Bs : ");
+    printf("        Precio de Venta en Bs : \n");
+    printf("         > ");
     scanf("%f", &precio);
-    printf(" Cantidad Inicial : ");
+    printf("        Cantidad Inicial : \n");
+    printf("         > ");
     scanf("%i", &cantidad);
 
-    /* Data processing */
-
     arreglar_formato(descripcion);
-
-        int n = 0, index_codigo = 0;
-    char linea[100];
 
     /* Copiar data.txt -> aux_data.txt */
 
@@ -146,6 +150,8 @@ void insertar()
 
     fclose(archivo);
     fclose(aux_archivo);
+
+    printf("El producto %s ah sido registrado\n",descripcion);
 }
 
 void eliminar()
@@ -155,9 +161,10 @@ void eliminar()
 
     /* Obtencion de producto */
     printf("Elimnar un registro:\n");
-    printf("Inserte la Descripcion del producto:\n");
+    printf("    Inserte la Descripcion del producto:\n");
+    printf("         > ");
     fgets(descripcion_user, sizeof(descripcion_user), stdin);
-    printf("Buscando dicho producto...\n");
+    printf("    Buscando dicho producto...\n");
 
     arreglar_formato(descripcion_user);
 
@@ -202,11 +209,11 @@ void eliminar()
         fclose(archivo);
         fclose(aux_archivo);
         
-        printf("El registro \"%s\" ha sido eliminado.", descripcion_user);
+        printf("El registro \"%s\" ha sido eliminado.\n", descripcion_user);
     }
     else
     {
-        printf("La Descripcion %s no está registrado.", descripcion_user);
+        printf("La descripcion %s no está registrada.\n", descripcion_user);
     }
 }
 
@@ -217,9 +224,10 @@ void consultar()
 
     /* Obtencion de campo a buscar */
     printf("Consulta de producto:\n");
-    printf("Inserte la Descripcion del producto:\n");
+    printf("    Inserte la Descripcion del producto:\n");
+    printf("         > ");
     fgets(descripcion_user, sizeof(descripcion_user), stdin);
-    printf("Buscando dicho producto...\n");
+    printf("    Buscando dicho producto...\n");
 
     arreglar_formato(descripcion_user);
 
@@ -242,7 +250,7 @@ void consultar()
 
     if(enc)
     {
-        printf("Registro encontrado:\n");
+        printf("    Registro encontrado:\n");
         print_regitro(linea);
     }
     else
@@ -265,13 +273,13 @@ void actualizar()
     printf("    Inserte las cantidades de dicho producto a acualizar.\n");
     printf("    Inserte -1 para saltar campo:\n");
     printf("        Costo en Bs:\n");
-    printf("                > ");
+    printf("             > ");
     scanf("%f", &costo);
     printf("        Precio de Venta en Bs:\n");
-    printf("                > ");
+    printf("             > ");
     scanf("%f", &precio);
     printf("        Cantidad Nueva:\n");
-    printf("                > ");
+    printf("             > ");
     scanf("%i", &cantidad);
 
 
@@ -322,7 +330,7 @@ void actualizar()
         costo = costo != -1 ? costo: costo_aux;
         precio = precio != -1 ? precio: precio_aux;
         cantidad = cantidad != -1 ? cantidad: cant_aux;
-        fprintf(archivo,"~ %i %s %3.3f %3.3f %i", ind, des, costo, precio, cantidad);
+        fprintf(archivo,"%i %s %3.3f %3.3f %i", ind, des, costo, precio, cantidad);
         
         // Terminar de copiar todo lo de abajo
         i = 0;
@@ -335,6 +343,8 @@ void actualizar()
         
         fclose(archivo);
         fclose(aux_archivo);
+        
+        printf("Registro %s actualizado.\n", des);
     }
     else
     {
@@ -344,25 +354,36 @@ void actualizar()
 
 int main()
 {
-    char program_version[] = "v0.5.1";
+    char program_version[] = "v1.0";
     char option = 'r';
+    FILE* file;
+
+    // Inicializacion de archivo si es la primera vez
+    if(!(file = fopen("data.txt","r")))
+    {
+        printf("Archivo no existente, creado tabla de Registros...");
+        inicializar_tabla();
+    }
+    else
+    {
+        printf("Trabajando con un archivo existente");
+    }
 
     
     while(option != 'q')
     { 
-        printf(". : Gestion de productos %s : .\n",program_version);
+        printf("\n. : Gestion de productos %s : .\n",program_version);
         printf("Operaciones para resgistros:\n");
-        printf("i. para Insertar.\n");
-        printf("c. para Consultar.\n");
-        printf("a. para Actualizar.\n");
-        printf("e. para Eliminar.\n");
-        printf("q. Salir del programa de gestion.\n");
-        printf(" > ");
+        printf("    i. para Insertar.\n");
+        printf("    c. para Consultar.\n");
+        printf("    a. para Actualizar.\n");
+        printf("    e. para Eliminar.\n");
+        printf("    q. Salir del programa de gestion.\n");
+        printf("         > ");
         
         option = getchar();
         
         while(getchar() != '\n'); // Una cosa kike limpia el buffer y vaina...
-            printf("^\n");
             switch(option) {
                 case 'i': insertar(); break;
                 case 'c': consultar(); break;
