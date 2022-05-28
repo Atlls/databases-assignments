@@ -292,7 +292,7 @@ void actualizar()
 {
     char descripcion_user[30], linea[100]; 
     float costo, precio;
-    int i, index_enc = 0, n, index_codigo, cantidad;
+    int i, index_enc = -1, n, index_codigo, cantidad;
 
     /* Obtencion de producto */
     printf("Actualizar un registro:\n");
@@ -317,10 +317,9 @@ void actualizar()
     FILE* archivo = fopen("data.txt","r");
 
     // Indices de control
-    fscanf(archivo,"%i\n",&n);
+    fscanf(archivo,"%i %i\n",&n,&index_codigo);
 
     i = 0;
-    fseek(archivo,2, SEEK_CUR); // Mover malandristicamente
     while(i < n)
     {
         fgets(linea,100,archivo);
@@ -335,47 +334,54 @@ void actualizar()
     fclose(aux_archivo);
 
     /* Acualizacion de registro */
-    if(index_enc > 0)
+    if(index_enc > -1)
     {
-        char aux_costo[5];
-        printf("%s",linea);
-        printf("%i ~\n",strspace(linea)); 
+        int j = index_enc;
 
-        // Copiar todos los registros hasta al anterior al selecionado
+        // Copiar todos los registros hasta el anterior al encontrado
         aux_archivo = fopen("aux_data.txt","r");
-        //archivo = fopen("data.txt","w");
-        
-        fseek(aux_archivo,0, SEEK_CUR); // Mover malandristicamente
-        printf("%i ~~\n",i);
-        while(index_enc > 0)
+        archivo = fopen("data.txt","w");
+
+        fprintf(archivo,"%i %i\n",n,index_codigo);
+        while(j > 0)
         {
             fgets(linea,100,aux_archivo);
-            printf("%s",linea);
-            index_enc--;
+            fprintf(archivo,"%s",linea);
+            j--;
         }
         
         // Proceso de reemplazo de linea
-        int aux;
-        fgets(linea,100,aux_archivo);
-        aux = strspace(linea);
-        costo = costo != -1 ? costo: -2;
-        printf("%f", costo);
+        char des[30];
+        float costo_aux, precio_aux;
+        int cant_aux, ind; 
 
+        fscanf(aux_archivo,"%i %s %f %f %i", &ind, des, &costo_aux, &precio_aux, &cant_aux);
+        costo = costo != -1 ? costo: costo_aux;
+        precio = precio != -1 ? precio: precio_aux;
+        cantidad = cantidad != -1 ? cantidad: cant_aux;
+        fprintf(archivo,"~ %i %s %3.3f %3.3f %i", ind, des, costo, precio, cantidad);
 
-        // * Obtener indice del primer espacio (antes del nombre).
-        // * Sumar ese indice con la longitud del nombre, obtenemos
-        // el segundo espacio.
-        // * Si los campos son != a -1, reemplazarlos (float/int -> Cadena)
+        // Terminar de copiar todo lo de abajo
+        i = 0;
+        while(i < n - index_enc)
+        {
+            fgets(linea,100,aux_archivo);
+            fprintf(archivo,"%s",linea);
+            i++;
+        }
+
+        fclose(archivo);
+        fclose(aux_archivo);
     }
     else
     {
-        printf("qk pelua");
+        printf("Dicho Registro no exite.\n");
     }
 }
 
 int main()
 {
-    char program_version[] = "v0.4.1";
+    char program_version[] = "v0.5.0";
     char option = 'r';
 
     
@@ -388,7 +394,6 @@ int main()
         printf("a. para Actualizar.\n");
         printf("e. para Eliminar.\n");
         printf("q. Salir del programa de gestion.\n");
-        printf("%s~~~\n",strslice("Machetico",2,5));
         printf(" > ");
         
         option = getchar();
